@@ -223,6 +223,12 @@
     <div class="taobao-box">
       Same spec, fraction of the price. These Chinese brands use YKK zips, expandable designs, and similar materials. Search Taobao directly for the best prices (keywords below each card).
     </div>
+    <div class="note-box">
+      <strong>Samsonite UG3 Note:</strong> Model code "UG3" not found on Samsonite's official site, JD, or Suning. Could be a China-exclusive 2025 release or seller-specific SKU. Scored conservatively using typical Samsonite commuter pack features. Verify exact specs on the Taobao listing before buying.
+    </div>
+    <div class="taobao-box">
+      <strong>Aer Travel Pack 3 Taobao Warning:</strong> A listing at &#x00A5;639 (~$88 USD) was found &mdash; that's 38% of the official $230 price. Aer has no authorized retailers in China. Chinese review site SMZDM confirms most Aer bags on Taobao/PDD are replicas with stiff fabric and weight differences. If you want genuine Aer, buy from <a href="https://aersf.com" target="_blank" rel="noopener" style="color:var(--orange);font-weight:700">aersf.com</a> directly.
+    </div>
     <div id="taobao-cards"></div>
 
     <div class="search-tips">
@@ -238,10 +244,11 @@
       <table class="tip-table">
         <thead><tr><th>Brand</th><th>Official Price</th><th>Est. Taobao</th><th>Savings</th><th>Search Keywords</th></tr></thead>
         <tbody>
-          <tr><td>Aer Travel Pack 3</td><td>$230</td><td>~$165-210</td><td>~10-30%</td><td>Aer Travel Pack 3 / Aer&#26053;&#34892;&#32972;&#21253;</td></tr>
+          <tr style="background:var(--red-bg)"><td>Aer Travel Pack 3</td><td>$230</td><td>&#x00A5;639 (~$88) &#x26A0;&#xFE0F;</td><td>&#x26A0; LIKELY FAKE</td><td>Aer has NO authorized CN sellers. SMZDM confirms replicas.</td></tr>
           <tr><td>Thule Subterra 2</td><td>$170</td><td>~$96-137</td><td>~20-45%</td><td>&#25299;&#20048; Subterra 2 / Thule&#21452;&#32937;&#21253;</td></tr>
           <tr><td>Peak Design V2</td><td>$290</td><td>~$250-290</td><td>~0-15%</td><td>&#24005;&#23792;&#35774;&#35745; Everyday V2 30L</td></tr>
           <tr><td>Able Carry Max</td><td>$189</td><td>~$130-165</td><td>~15-30%</td><td>Able Carry Max &#32972;&#21253;</td></tr>
+          <tr style="background:var(--green-bg)"><td>Samsonite UG3 (&#26032;&#31168;&#20029;)</td><td>N/A</td><td>&#x00A5;826 (~$113)</td><td>&#x2705; Genuine brand</td><td>&#26032;&#31168;&#20029; UG3 &#21452;&#32937;&#21253; &#36890;&#21220; &#30005;&#33041;&#21253;</td></tr>
         </tbody>
       </table>
     </div>
@@ -267,8 +274,10 @@ var internationalPacks = [
     link: "https://aersf.com/products/travel-pack-3",
     altLink: "https://aersf.com/products/travel-pack-3-x-pac",
     altLabel: "X-Pac Version",
+    taobaoLink: "https://item.taobao.com/item.htm?id=765575897140",
+    taobaoWarning: "\u26A0\uFE0F CAUTION: Taobao listing at \u00A5639 (~$88) is 38% of official $230. Aer has NO authorized Chinese retailers. Chinese review site (SMZDM) confirms most Aer bags on Taobao/PDD are replicas \u2014 stiff fabric and weight discrepancies are common telltale signs. Buy from aersf.com for guaranteed authentic.",
     highlights: ["Clamshell Opening", "Travel + Commute", "1680D Cordura", "YKK Zips", "Lifetime Warranty"],
-    taobaoEst: "\u00a51200-1500",
+    taobaoEst: "\u00a51200-1500 (genuine proxy)",
     criteria: [
       [true, "Dedicated laptop compartment with separate external zip"],
       [true, "Expandable design for travel packing"],
@@ -599,6 +608,33 @@ var taobaoPacks = [
     ]
   },
   {
+    name: "Samsonite UG3 (新秀丽)",
+    price: 113, volume: "~25-30L (est.)", weight: "Lightweight (est. < 1kg)",
+    material: "Nylon (Samsonite standard)",
+    badge: null,
+    link: "https://item.taobao.com/item.htm?id=894112279173",
+    altLink: "https://www.samsonite.com.cn/c/backpacks",
+    altLabel: "Samsonite CN",
+    taobaoKeywords: "\u65B0\u79C0\u4E3D UG3 \u53CC\u80A9\u5305 \u7535\u8111\u5305 / Samsonite UG3 \u901A\u52E4",
+    taobaoEst: "\u00a5826",
+    highlights: ["Samsonite Brand", "2025 Model", "\u5927\u5BB9\u91CF (Large Cap.)", "\u8F7B\u4FBF (Lightweight)", "Commuter Focused"],
+    criteria: [
+      [true, "Samsonite commuter packs typically have dedicated laptop sleeve"],
+      [false, "Expandable section not confirmed for this model"],
+      [false, "Hidden anti-theft back pocket not confirmed"],
+      [true, "Samsonite uses quality zips (brand standard, not always YKK)"],
+      [true, "Samsonite business packs typically include tech organizer"],
+      [false, "No dedicated headphone compartment confirmed"],
+      [false, "No dedicated tissue pocket"],
+      [true, "Title says \u5927\u5BB9\u91CF (large capacity) \u2014 likely fits lunch box"],
+      [true, "Water bottle side pocket standard on Samsonite packs"],
+      [false, "Material density not confirmed as 500D+ (Samsonite uses various)"],
+      [true, "Samsonite commuter packs have ventilated back panels"],
+      [true, "Title says \u8F7B\u4FBF (lightweight) \u2014 Samsonite packs typically 0.7-1.0kg"],
+      [true, "Samsonite global warranty 2+ years"]
+    ]
+  },
+  {
     name: "Nayo EXP",
     price: 100, volume: "25L \u2192 40L", weight: "1.1 kg",
     material: "Waterproof TPU Fabric",
@@ -727,9 +763,17 @@ function renderCard(bp, rank, isTaobao) {
   });
   body.appendChild(list);
 
+  if (bp.taobaoWarning) {
+    var warn = el('div', 'taobao-box');
+    warn.style.marginTop = '1rem';
+    warn.textContent = bp.taobaoWarning;
+    body.appendChild(warn);
+  }
+
   var row = el('div', 'btn-row');
   row.appendChild(mkLink(bp.link, 'View Product \u2197', isTaobao ? 'btn btn-taobao' : 'btn btn-primary'));
   if (bp.altLink) row.appendChild(mkLink(bp.altLink, bp.altLabel + ' \u2197', 'btn btn-secondary'));
+  if (bp.taobaoLink) row.appendChild(mkLink(bp.taobaoLink, 'Taobao \u00A5639 \u2197', 'btn btn-taobao'));
   body.appendChild(row);
 
   card.appendChild(body);
