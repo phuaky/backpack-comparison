@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backpack Comparison — Kuan's Pick</title>
+<style>
+  :root {
+    --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --muted: #64748b;
+    --border: #e2e8f0; --accent: #2563eb; --accent-light: #dbeafe;
+    --green: #16a34a; --green-bg: #dcfce7; --red: #dc2626; --red-bg: #fee2e2;
+    --gold: #f59e0b; --gold-bg: #fef3c7; --orange: #ea580c; --orange-bg: #fff7ed;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8;
+      --border: #334155; --accent: #3b82f6; --accent-light: #1e3a5f;
+      --green: #4ade80; --green-bg: #14532d; --red: #f87171; --red-bg: #450a0a;
+      --gold: #fbbf24; --gold-bg: #451a03; --orange: #fb923c; --orange-bg: #431407;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3); --shadow-lg: 0 10px 25px rgba(0,0,0,0.4);
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6; padding: 0 0 4rem;
+  }
+  .hero {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+    color: white; padding: 2.5rem 1.5rem 2rem; text-align: center;
+  }
+  .hero h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .hero p { opacity: 0.85; font-size: 0.95rem; max-width: 600px; margin: 0 auto; }
+  .context-bar {
+    background: var(--card); border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem;
+    justify-content: center; font-size: 0.85rem;
+  }
+  .context-tag {
+    background: var(--accent-light); color: var(--accent);
+    padding: 0.25rem 0.75rem; border-radius: 100px; font-weight: 500; font-size: 0.8rem;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 1rem; }
+  .section-title { font-size: 1.1rem; font-weight: 600; margin: 2rem 0 1rem; padding-left: 0.25rem; }
+  .section-desc { font-size: 0.85rem; color: var(--muted); margin: -0.5rem 0 1rem; padding-left: 0.25rem; }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    margin-bottom: 1rem; box-shadow: var(--shadow); overflow: hidden; transition: box-shadow 0.2s;
+  }
+  .card:hover { box-shadow: var(--shadow-lg); }
+  .card.top-pick { border: 2px solid var(--gold); }
+  .card.top-pick .card-header { background: linear-gradient(90deg, var(--gold-bg), transparent); }
+  .card-header {
+    display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem;
+    cursor: pointer; user-select: none;
+  }
+  .rank {
+    width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.95rem; flex-shrink: 0;
+  }
+  .card.top-pick .rank { background: var(--gold); color: #1e293b; }
+  .card-info { flex: 1; min-width: 0; }
+  .card-name { font-weight: 600; font-size: 1rem; }
+  .card-meta { font-size: 0.8rem; color: var(--muted); display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .score-badge {
+    background: var(--green-bg); color: var(--green); font-weight: 700; font-size: 0.95rem;
+    padding: 0.35rem 0.75rem; border-radius: 8px; flex-shrink: 0; white-space: nowrap;
+  }
+  .score-badge.mid { background: var(--gold-bg); color: var(--gold); }
+  .score-badge.low { background: var(--red-bg); color: var(--red); }
+  .expand-icon { color: var(--muted); transition: transform 0.2s; flex-shrink: 0; font-size: 1.2rem; }
+  .card.open .expand-icon { transform: rotate(180deg); }
+  .card-body { display: none; padding: 0 1.25rem 1.25rem; border-top: 1px solid var(--border); }
+  .card.open .card-body { display: block; }
+  .highlights { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+  .highlight {
+    font-size: 0.78rem; padding: 0.2rem 0.6rem; border-radius: 6px;
+    background: var(--accent-light); color: var(--accent); font-weight: 500;
+  }
+  .checklist { list-style: none; margin: 1rem 0; }
+  .checklist li {
+    display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.35rem 0;
+    font-size: 0.85rem; border-bottom: 1px solid var(--border);
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .check-icon { flex-shrink: 0; font-size: 0.9rem; margin-top: 0.1rem; }
+  .pass { color: var(--green); }
+  .fail { color: var(--red); }
+  .btn-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem;
+    border-radius: 8px; font-size: 0.85rem; font-weight: 600; text-decoration: none;
+    transition: opacity 0.15s; cursor: pointer; border: none;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--border); color: var(--text); }
+  .btn-taobao { background: #ff4400; color: white; }
+  .score-bar-wrap { width: 100%; height: 6px; background: var(--border); border-radius: 3px; margin-top: 0.5rem; }
+  .score-bar { height: 100%; border-radius: 3px; background: var(--green); transition: width 0.4s ease; }
+  .score-bar.mid { background: var(--gold); }
+  .score-bar.low { background: var(--red); }
+  .top-badge, .value-badge {
+    display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem;
+    border-radius: 4px; margin-left: 0.5rem; vertical-align: middle;
+    text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  .top-badge { background: var(--gold); color: #1e293b; }
+  .value-badge { background: var(--green); color: white; }
+  .footer { text-align: center; padding: 2rem 1rem; color: var(--muted); font-size: 0.8rem; }
+  .criteria-summary {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: var(--shadow);
+  }
+  .criteria-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem 1rem; font-size: 0.82rem;
+  }
+  @media (max-width: 500px) { .criteria-grid { grid-template-columns: 1fr; } }
+  .criteria-item { display: flex; gap: 0.4rem; align-items: flex-start; }
+  .criteria-num { color: var(--muted); font-weight: 600; min-width: 1.5rem; }
+  .note-box {
+    background: var(--gold-bg); border: 1px solid var(--gold); border-radius: 8px;
+    padding: 0.75rem 1rem; font-size: 0.85rem; margin-bottom: 1.5rem;
+  }
+  .taobao-box {
+    background: var(--orange-bg); border: 1px solid var(--orange); border-radius: 8px;
+    padding: 0.75rem 1rem; font-size: 0.85rem; margin-bottom: 1.5rem;
+  }
+  .material-line { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.25rem; }
+  .price-compare {
+    display: flex; gap: 0.75rem; align-items: center; margin: 0.5rem 0;
+    font-size: 0.82rem; flex-wrap: wrap;
+  }
+  .price-official { color: var(--muted); text-decoration: line-through; }
+  .price-taobao { color: var(--orange); font-weight: 700; }
+  .price-savings { color: var(--green); font-weight: 600; font-size: 0.75rem; }
+  .search-tips {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.25rem; margin: 1.5rem 0; box-shadow: var(--shadow);
+  }
+  .search-tips h3 { font-size: 0.95rem; margin-bottom: 0.75rem; }
+  .tip-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  .tip-table th {
+    text-align: left; padding: 0.5rem; border-bottom: 2px solid var(--border);
+    color: var(--muted); font-weight: 600;
+  }
+  .tip-table td { padding: 0.5rem; border-bottom: 1px solid var(--border); }
+  .tip-table tr:last-child td { border-bottom: none; }
+  .divider {
+    border: none; border-top: 2px solid var(--border); margin: 2.5rem 0 0.5rem;
+  }
+  .tab-bar {
+    display: flex; gap: 0; margin: 1.5rem 0 1rem; border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .tab {
+    flex: 1; padding: 0.75rem; text-align: center; font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; background: var(--card); color: var(--muted); border: none;
+    transition: all 0.15s;
+  }
+  .tab.active { background: var(--accent); color: white; }
+  .tab:not(.active):hover { background: var(--accent-light); color: var(--accent); }
+  .section-hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Backpack Showdown</h1>
+  <p>Scored comparison for Kuan's weekly Forest City &#8596; Singapore commute. International picks vs Taobao alternatives at the same spec. Tap any card for details + buy link.</p>
+</div>
+
+<div class="context-bar">
+  <span class="context-tag">MacBook Pro 14"</span>
+  <span class="context-tag">Sony WH-1000XM5</span>
+  <span class="context-tag">Passport + Cash</span>
+  <span class="context-tag">Expandable</span>
+  <span class="context-tag">YKK Zips</span>
+  <span class="context-tag">Tropical Climate</span>
+</div>
+
+<div class="container">
+
+  <p class="section-title">Scoring Criteria (13 points)</p>
+  <div class="criteria-summary">
+    <div class="criteria-grid">
+      <div class="criteria-item"><span class="criteria-num">1.</span> Dedicated laptop zip (independent access)</div>
+      <div class="criteria-item"><span class="criteria-num">2.</span> Expandable section (6+ cm)</div>
+      <div class="criteria-item"><span class="criteria-num">3.</span> Hidden back-panel security pocket</div>
+      <div class="criteria-item"><span class="criteria-num">4.</span> YKK zips or equivalent quality</div>
+      <div class="criteria-item"><span class="criteria-num">5.</span> Tech organizer with 4+ slots</div>
+      <div class="criteria-item"><span class="criteria-num">6.</span> Headphone compartment (fits XM5)</div>
+      <div class="criteria-item"><span class="criteria-num">7.</span> Tissue-accessible pocket</div>
+      <div class="criteria-item"><span class="criteria-num">8.</span> Lunch box compatible main</div>
+      <div class="criteria-item"><span class="criteria-num">9.</span> Water bottle side pocket</div>
+      <div class="criteria-item"><span class="criteria-num">10.</span> 500D+ nylon or equivalent</div>
+      <div class="criteria-item"><span class="criteria-num">11.</span> Ventilated back panel</div>
+      <div class="criteria-item"><span class="criteria-num">12.</span> Under 1.2 kg empty</div>
+      <div class="criteria-item"><span class="criteria-num">13.</span> Manufacturer warranty 2+ years</div>
+    </div>
+  </div>
+
+  <div class="note-box">
+    Only confirmed features from official specs are scored as pass. Unverified = fail. Click product links to verify.
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab active" onclick="showSection('international')">International Brands</button>
+    <button class="tab" onclick="showSection('taobao')">Taobao Alternatives</button>
+    <button class="tab" onclick="showSection('all')">Show All</button>
+  </div>
+
+  <div id="international-section">
+    <p class="section-desc">Premium international brands. Some available cheaper on Taobao/Tmall.</p>
+    <div id="international-cards"></div>
+  </div>
+
+  <div id="taobao-section" class="section-hidden">
+    <div class="taobao-box">
+      Same spec, fraction of the price. These Chinese brands use YKK zips, expandable designs, and similar materials. Search Taobao directly for the best prices (keywords below each card).
+    </div>
+    <div id="taobao-cards"></div>
+
+    <div class="search-tips">
+      <h3>Taobao Search Keywords</h3>
+      <table class="tip-table">
+        <thead><tr><th>Brand</th><th>Search Keywords</th></tr></thead>
+        <tbody id="tips-body"></tbody>
+      </table>
+    </div>
+
+    <div class="search-tips" style="margin-top:1rem">
+      <h3>Branded Bags on Taobao (Estimated Pricing)</h3>
+      <table class="tip-table">
+        <thead><tr><th>Brand</th><th>Official Price</th><th>Est. Taobao</th><th>Savings</th><th>Search Keywords</th></tr></thead>
+        <tbody>
+          <tr><td>Aer Travel Pack 3</td><td>$230</td><td>~$165-210</td><td>~10-30%</td><td>Aer Travel Pack 3 / Aer&#26053;&#34892;&#32972;&#21253;</td></tr>
+          <tr><td>Thule Subterra 2</td><td>$170</td><td>~$96-137</td><td>~20-45%</td><td>&#25299;&#20048; Subterra 2 / Thule&#21452;&#32937;&#21253;</td></tr>
+          <tr><td>Peak Design V2</td><td>$290</td><td>~$250-290</td><td>~0-15%</td><td>&#24005;&#23792;&#35774;&#35745; Everyday V2 30L</td></tr>
+          <tr><td>Able Carry Max</td><td>$189</td><td>~$130-165</td><td>~15-30%</td><td>Able Carry Max &#32972;&#21253;</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="all-section" class="section-hidden">
+    <div id="all-cards"></div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Generated 2026-01-28 &middot; Prices approximate (USD) &middot; Taobao prices are estimates &mdash; search directly for current listings
+</div>
+
+<script>
+var internationalPacks = [
+  {
+    name: "Aer Travel Pack 3",
+    price: 230, volume: "33L", weight: "~1.6 kg",
+    material: "1680D Cordura Ballistic Nylon",
+    badge: "top",
+    link: "https://aersf.com/products/travel-pack-3",
+    altLink: "https://aersf.com/products/travel-pack-3-x-pac",
+    altLabel: "X-Pac Version",
+    highlights: ["Clamshell Opening", "Travel + Commute", "1680D Cordura", "YKK Zips", "Lifetime Warranty"],
+    taobaoEst: "\u00a51200-1500",
+    criteria: [
+      [true, "Dedicated laptop compartment with separate external zip"],
+      [true, "Expandable design for travel packing"],
+      [false, "No confirmed hidden anti-theft back pocket"],
+      [true, "YKK zippers throughout"],
+      [true, "Full tech organizer panel with 4+ slots"],
+      [false, "No dedicated headphone compartment (fits in main)"],
+      [false, "No dedicated tissue pocket (use quick-access pocket)"],
+      [true, "Large clamshell main fits lunch box easily"],
+      [true, "Water bottle side pocket"],
+      [true, "1680D Cordura ballistic nylon \u2014 top tier"],
+      [true, "Ventilated mesh back panel"],
+      [false, "~1.6 kg \u2014 exceeds 1.2 kg target"],
+      [true, "Aer limited lifetime warranty"]
+    ]
+  },
+  {
+    name: "Thule Subterra 2 Travel",
+    price: 170, volume: "26L \u2192 32L", weight: "~1.3 kg",
+    material: "800D Nylon, YKK Zips",
+    badge: "value",
+    link: "https://www.thule.com/en-us/backpacks/backpacking-travel-backpacks/thule-subterra-travel-backpack-26l-_-3205054",
+    altLink: "https://www.thule.com/en-us/backpacks/laptop-backpacks/thule-subterra-backpack-27l-_-3205027",
+    altLabel: "27L Non-Expandable",
+    highlights: ["26L\u219232L Expandable", "YKK Zips", "800D Nylon", "Packing Cube", "bluesign\u00AE"],
+    taobaoEst: "\u00a5700-1000",
+    criteria: [
+      [true, "Separate padded laptop access, fits 16-inch MacBook"],
+      [true, "Expands from 26L to 32L with removable packing cube"],
+      [false, "No confirmed hidden anti-theft back pocket"],
+      [true, "YKK zippers confirmed"],
+      [false, "Organization panel but fewer than 4 dedicated tech slots"],
+      [false, "No dedicated headphone compartment"],
+      [false, "No dedicated tissue pocket"],
+      [true, "Main compartment with packing cube fits lunch box"],
+      [true, "Side pocket for water bottle"],
+      [true, "800D nylon with PFC-free DWR coating"],
+      [true, "Padded ventilated mesh back panel"],
+      [false, "~1.3 kg \u2014 slightly over 1.2 kg target"],
+      [true, "Thule limited lifetime warranty"]
+    ]
+  },
+  {
+    name: "Able Carry Max",
+    price: 189, volume: "30L", weight: "1.7 kg",
+    material: "X-Pac + 1000D Cordura",
+    badge: null,
+    link: "https://ablecarry.com/products/max",
+    altLink: "https://ablecarry.com/products/max-edc-ripstop-black",
+    altLabel: "Max EDC (26L)",
+    highlights: ["X-Pac Fabric", "1000D Cordura", "YKK + Duraflex", "Lockable Zips", "HK Brand"],
+    taobaoEst: "\u00a5800-1200",
+    criteria: [
+      [true, "Separate work compartment with independent access"],
+      [false, "Not expandable \u2014 fixed 30L volume"],
+      [false, "Lockable zips but no confirmed hidden back pocket"],
+      [true, "YKK zippers plus Duraflex hardware"],
+      [true, "Updated tech pocket with height and pocket separation"],
+      [false, "No dedicated headphone compartment (30L main can fit)"],
+      [false, "No dedicated tissue pocket"],
+      [true, "30L main compartment \u2014 ample for lunch box"],
+      [true, "Water bottle side pocket"],
+      [true, "X-Pac plus 1000D Cordura nylon \u2014 premium"],
+      [true, "Ventilated back panel"],
+      [false, "1.7 kg \u2014 heaviest candidate"],
+      [true, "Lifetime warranty against defects"]
+    ]
+  },
+  {
+    name: "Aer City Pack Pro 2",
+    price: 190, volume: "~24L", weight: "~1.3 kg",
+    material: "Cordura Ballistic Nylon",
+    badge: null,
+    link: "https://aersf.com/products/city-pack-pro-2",
+    altLink: "https://aersf.com/products/city-pack-pro-2-x-pac",
+    altLabel: "X-Pac Version",
+    highlights: ["Lay-Flat Main", "Daily Commuter", "Cordura Nylon", "YKK Zips"],
+    criteria: [
+      [true, "Lay-flat main with dedicated laptop access"],
+      [false, "Not expandable \u2014 fixed ~24L volume"],
+      [false, "No confirmed hidden anti-theft back pocket"],
+      [true, "YKK zippers throughout"],
+      [true, "Strong tech organizer panel"],
+      [false, "No dedicated headphone compartment"],
+      [false, "No dedicated tissue pocket"],
+      [true, "24L main compartment can fit lunch box"],
+      [true, "Water bottle side pocket"],
+      [true, "Cordura ballistic nylon"],
+      [true, "Ventilated contoured back panel"],
+      [false, "~1.3 kg \u2014 slightly over target"],
+      [true, "Aer limited lifetime warranty"]
+    ]
+  },
+  {
+    name: "Peak Design Everyday V2 30L",
+    price: 290, volume: "30L (expandable)", weight: "~1.5 kg",
+    material: "400D Recycled Nylon DWR",
+    badge: null,
+    link: "https://www.peakdesign.com/products/everyday-backpack",
+    altLink: "https://www.amazon.com/Peak-Design-Everyday-Backpack-Charcoal/dp/B07ZTQQGLP",
+    altLabel: "Amazon",
+    highlights: ["MagLatch Top", "FlexFold Dividers", "Dual Side Access", "Award-Winning", "Lifetime Warranty"],
+    criteria: [
+      [false, "No independent laptop zip \u2014 accessed via side or top"],
+      [true, "Expandable via MagLatch height adjustment"],
+      [false, "No hidden anti-theft back pocket"],
+      [true, "Custom premium hardware (equivalent to YKK quality)"],
+      [false, "FlexFold dividers \u2014 configurable but not 4+ fixed tech slots"],
+      [false, "No dedicated headphone compartment"],
+      [false, "No dedicated tissue pocket"],
+      [true, "Large 30L main compartment"],
+      [true, "Expandable side pockets"],
+      [true, "400D recycled nylon with DWR \u2014 durable"],
+      [true, "Ventilated back panel"],
+      [false, "~1.5 kg \u2014 over target"],
+      [true, "Lifetime warranty"]
+    ]
+  },
+  {
+    name: "Tomtoc Navigator-T71",
+    price: 88, volume: "24L", weight: "~0.9 kg",
+    material: "Splash-proof Polyester, YKK",
+    badge: "budget",
+    link: "https://www.tomtoc.com/products/navigator-t71-laptop-backpack-m",
+    altLink: "https://www.tomtoc.com/products/tomtoc-premium-laptop-backpack-for-commuting-and-travel",
+    altLabel: "L Size",
+    highlights: ["Best Budget", "YKK Zips", "Foam-Padded", "Lightweight", "Free Shipping"],
+    criteria: [
+      [true, "Dedicated padded laptop section with foam sides and bottom"],
+      [false, "Not expandable \u2014 fixed 24L volume"],
+      [false, "No confirmed hidden anti-theft pocket"],
+      [true, "YKK zippers confirmed"],
+      [true, "Multiple organized pockets and compartments"],
+      [false, "No dedicated headphone compartment"],
+      [false, "No dedicated tissue pocket"],
+      [true, "24L main compartment fits lunch box"],
+      [true, "Expandable water bottle holders"],
+      [false, "Splash-proof polyester \u2014 not 500D+ nylon"],
+      [true, "Breathable ergonomic back panel"],
+      [true, "~0.9 kg \u2014 lightest candidate"],
+      [false, "30-day returns but warranty terms unclear"]
+    ]
+  },
+  {
+    name: "Bellroy Transit Workpack",
+    price: 179, volume: "20L", weight: "~1.0 kg",
+    material: "Recycled Nylon + MIRUM",
+    badge: null,
+    link: "https://bellroy.com/products/transit-workpack",
+    altLink: "https://bellroy.com/products/transit-workpack-pro",
+    altLabel: "Pro (22L/28L)",
+    highlights: ["Clean Design", "Separate Tech Access", "AirTag Pocket", "Clamshell Open"],
+    criteria: [
+      [true, "Separate tech section with independent access"],
+      [false, "Not expandable \u2014 fixed 20L (check Pro 22L/28L)"],
+      [false, "No confirmed hidden anti-theft back pocket"],
+      [true, "Quality zips (Bellroy standard)"],
+      [true, "Good internal organization with dedicated slots"],
+      [false, "20L too compact for dedicated headphone space"],
+      [false, "No dedicated tissue pocket"],
+      [false, "20L too small for laptop plus headphones plus lunch plus clothes"],
+      [false, "Side pocket exists but tight for bottles"],
+      [false, "Recycled nylon \u2014 density not confirmed as 500D+"],
+      [true, "Ventilated back panel"],
+      [true, "~1.0 kg \u2014 under target"],
+      [true, "3-year warranty"]
+    ]
+  },
+  {
+    name: "Tropicfeel Shell",
+    price: 200, volume: "22L \u2192 40L+", weight: "~1.24 kg",
+    material: "Recycled Polyester + Nylon",
+    badge: null,
+    link: "https://shop.tropicfeel.com/products/shell-backpack",
+    altLink: "https://shop.tropicfeel.com/products/shell-prolite-backpack",
+    altLabel: "ProLite Version",
+    highlights: ["22L to 40L+", "Modular Magnetic", "Fidlock", "Lifetime Warranty", "Kickstarter Hit"],
+    criteria: [
+      [true, "Dedicated laptop sleeve with access"],
+      [true, "Most expandable: 22L to 40L+ with modules"],
+      [false, "No confirmed hidden anti-theft back pocket"],
+      [false, "Zipper brand not confirmed as YKK"],
+      [false, "Modular add-ons needed \u2014 base organization is basic"],
+      [false, "No dedicated headphone compartment"],
+      [false, "No dedicated tissue pocket"],
+      [true, "Very expandable main \u2014 easily fits lunch"],
+      [true, "Water bottle holder"],
+      [false, "Recycled polyester plus nylon \u2014 not Cordura class"],
+      [true, "Back panel present"],
+      [false, "~1.24 kg \u2014 borderline over target"],
+      [true, "Lifetime warranty"]
+    ]
+  },
+  {
+    name: "Boundary Supply Errant",
+    price: 165, volume: "22L", weight: "1.42 kg",
+    material: "Various (+ X-Pac option)",
+    badge: null,
+    link: "https://www.boundarysupply.com/products/errant-pack",
+    altLink: "https://www.boundarysupply.com/products/errant-pack-x-pac",
+    altLabel: "X-Pac Version",
+    highlights: ["18 Modular Accessories", "RFID Pocket", "Shoe Compartment", "Magnetic Laptop"],
+    criteria: [
+      [true, "Padded laptop sleeve with auto-locking magnetic closure"],
+      [false, "Not expandable \u2014 fixed 22L volume"],
+      [true, "RFID-protected hidden pocket for passport and wallet"],
+      [false, "Zipper brand not confirmed as YKK"],
+      [true, "18 modular accessories plus internal organization"],
+      [false, "No dedicated headphone compartment (has shoe compartment)"],
+      [false, "No dedicated tissue pocket"],
+      [false, "22L tight for laptop plus headphones plus lunch plus clothes"],
+      [false, "Side pocket not specifically bottle-shaped"],
+      [false, "Material varies by version \u2014 base not confirmed 500D+"],
+      [true, "Molded foam back panel with airflow channels"],
+      [false, "1.42 kg \u2014 over target"],
+      [false, "Warranty terms not clearly stated"]
+    ]
+  }
+];
+
+var taobaoPacks = [
+  {
+    name: "Mark Ryden Aviator Expandable",
+    price: 60, volume: "20L \u2192 39L", weight: "Not specified",
+    material: "Waterproof Oxford Fabric, YKK",
+    badge: "top",
+    link: "https://www.markrydenusa.com/products/aviator-expandable-large-capacity-17-3-inch-laptop-backpack",
+    altLink: "https://www.amazon.com/MARK-RYDEN-17-3-inch-Waterproof-retractable/dp/B09D2XR43Z",
+    altLabel: "Amazon",
+    taobaoKeywords: "\u9A6C\u514B\u83B1\u767B \u98DE\u884C\u5BB6 \u6269\u5C55\u80CC\u5305 / Mark Ryden Aviator",
+    taobaoEst: "\u00a5150-300",
+    highlights: ["20L\u219239L Expandable", "YKK Zips", "Anti-Theft", "USB Port", "17\" Laptop"],
+    criteria: [
+      [true, "Padded laptop compartment fits 17-inch with separate access"],
+      [true, "Expandable via side zippers from 20L to 39L"],
+      [true, "Anti-theft hidden pocket design on back panel"],
+      [true, "YKK zippers throughout confirmed"],
+      [true, "Multiple organized compartments and pockets"],
+      [false, "No dedicated headphone compartment"],
+      [false, "No dedicated tissue pocket"],
+      [true, "Large expandable main holds 3-5 days travel clothes"],
+      [false, "Water bottle pocket not explicitly confirmed"],
+      [false, "Oxford fabric \u2014 not 500D+ Cordura nylon"],
+      [true, "Cellular ventilation breathable back panel"],
+      [false, "Weight not specified in listings"],
+      [false, "Repair/replacement offered but warranty period unclear"]
+    ]
+  },
+  {
+    name: "MATEIN Expandable 40L",
+    price: 35, volume: "Up to 40L", weight: "Not specified",
+    material: "Water-Resistant Nylon, YKK (select models)",
+    badge: "budget",
+    link: "https://www.matein.com/products/matein-expandable-college-bookbag-travel-laptop-backpack",
+    altLink: "https://www.amazon.com/Backpack-Business-Charging-Resistant-Computer/dp/B06XZTZ7GB",
+    altLabel: "Amazon",
+    taobaoKeywords: "MATEIN \u6269\u5C55\u65C5\u884C\u80CC\u5305 / MATEIN expandable",
+    taobaoEst: "\u00a580-150",
+    highlights: ["Up to 40L", "YKK on Select Models", "17+ Pockets", "USB Port", "Lifetime Warranty"],
+    criteria: [
+      [true, "Dedicated padded laptop compartment"],
+      [true, "Expandable to 40L capacity"],
+      [true, "Anti-theft back pocket confirmed"],
+      [true, "YKK waterproof zippers on select models"],
+      [true, "17+ independent pockets for organization"],
+      [false, "No dedicated headphone compartment"],
+      [false, "No dedicated tissue pocket"],
+      [true, "40L main fits travel clothes and lunch"],
+      [false, "Mesh pockets too shallow for bottles"],
+      [false, "Water-resistant nylon \u2014 not 500D+ class"],
+      [true, "Padded back panel"],
+      [false, "Weight not clearly specified"],
+      [true, "Lifetime warranty confirmed"]
+    ]
+  },
+  {
+    name: "BANGE Expandable 35L",
+    price: 50, volume: "Up to 35-40L", weight: "Not specified",
+    material: "High-Density Oxford, YKK Waterproof",
+    badge: null,
+    link: "https://www.amazon.com/BANGE-Expandable-Backpack-35LCarry-Waterproof/dp/B0BYNKSSMP",
+    altLink: "https://bange.store/",
+    altLabel: "Bange MY Store",
+    taobaoKeywords: "\u73ED\u6B4C \u6269\u5C55\u65C5\u884C\u80CC\u5305 YKK / BANGE expandable",
+    taobaoEst: "\u00a5100-200",
+    highlights: ["Expandable 35-40L", "YKK Waterproof Zips", "180\u00B0 Open", "MY Official Store", "USB Port"],
+    criteria: [
+      [true, "17-inch padded laptop compartment"],
+      [true, "Expandable via zipper and buckles to 35-40L"],
+      [false, "Anti-theft features but no confirmed hidden back pocket"],
+      [true, "YKK waterproof zippers confirmed"],
+      [true, "Multiple compartments: front, main, wet pouch, accessories"],
+      [false, "No dedicated headphone compartment"],
+      [false, "No dedicated tissue pocket"],
+      [true, "Main holds 5-8 pieces of clothing"],
+      [false, "Water bottle pocket not explicitly confirmed"],
+      [false, "High-density Oxford fabric \u2014 not Cordura"],
+      [true, "Ergonomic padded breathable back panel"],
+      [false, "Weight not specified"],
+      [false, "Warranty terms not clearly stated"]
+    ]
+  },
+  {
+    name: "FENRUIEN Expandable 38L",
+    price: 45, volume: "26L \u2192 38L", weight: "1.08 kg",
+    material: "900D PU-Coated Oxford, YKK",
+    badge: null,
+    link: "https://www.amazon.com/FENRUIEN-Business-Backpack-Expandable-Resistant/dp/B09LHFP5R2",
+    altLink: "https://www.amazon.co.uk/FENRUIEN-Business-Travel-Backpack-15-6/dp/B0BJQFGZJK",
+    altLabel: "Amazon UK",
+    taobaoKeywords: "\u4E30\u745E\u6069 \u6269\u5C55\u7535\u8111\u80CC\u5305 YKK / FENRUIEN expandable",
+    taobaoEst: "\u00a5100-200",
+    highlights: ["26L\u219238L Expandable", "YKK Double Zips", "900D Oxford", "TSA 180\u00B0", "1.08kg Light"],
+    criteria: [
+      [true, "15.6-inch padded laptop compartment with protection"],
+      [true, "Expandable from 26L to 38L via side zippers"],
+      [false, "No confirmed hidden anti-theft security pocket"],
+      [true, "YKK double zippers on main and secondary pockets"],
+      [false, "Pockets exist but 4+ dedicated tech slots not confirmed"],
+      [false, "No dedicated headphone compartment"],
+      [false, "No dedicated tissue pocket"],
+      [true, "38L expanded main for travel"],
+      [false, "Water bottle pocket not explicitly confirmed"],
+      [true, "900D PU-coated Oxford fabric \u2014 water-resistant"],
+      [true, "Breathable mesh back panel with chest strap"],
+      [true, "1.08 kg confirmed \u2014 under target"],
+      [false, "Warranty terms not clearly stated"]
+    ]
+  },
+  {
+    name: "Nayo EXP",
+    price: 100, volume: "25L \u2192 40L", weight: "1.1 kg",
+    material: "Waterproof TPU Fabric",
+    badge: null,
+    link: "https://nayosmart.com/collections/travel-backpack",
+    altLink: "https://www.amazon.com/s?k=nayo+exp+backpack",
+    altLabel: "Amazon",
+    taobaoKeywords: "Nayo Smart EXP\u80CC\u5305 / Nayo EXP backpack",
+    taobaoEst: "\u00a5400-600",
+    highlights: ["25L\u219240L Expandable", "Waterproof TPU", "1.1kg Ultra-Light", "17.3\" Laptop", "USB Port"],
+    criteria: [
+      [true, "17.3-inch laptop compartment with padded protection"],
+      [true, "Expandable from 25L to 40L"],
+      [false, "No confirmed hidden security pocket"],
+      [false, "Zippers not confirmed as YKK (some models use SBS)"],
+      [false, "Basic internal organization"],
+      [false, "No dedicated headphone compartment"],
+      [false, "No dedicated tissue pocket"],
+      [true, "40L expanded main for travel packing"],
+      [false, "Water bottle pocket not confirmed"],
+      [false, "TPU and polyester fabric \u2014 not Cordura class"],
+      [true, "Back panel present"],
+      [true, "1.1 kg confirmed \u2014 under target"],
+      [false, "Warranty terms unclear"]
+    ]
+  }
+];
+
+function scoreIt(bp) {
+  bp.score = bp.criteria.filter(function(c) { return c[0]; }).length;
+}
+internationalPacks.forEach(scoreIt);
+taobaoPacks.forEach(scoreIt);
+internationalPacks.sort(function(a, b) { return b.score - a.score || a.price - b.price; });
+taobaoPacks.sort(function(a, b) { return b.score - a.score || a.price - b.price; });
+
+function el(tag, cls, txt) {
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (txt) e.textContent = txt;
+  return e;
+}
+function mkLink(href, txt, cls) {
+  var a = document.createElement('a');
+  a.href = href; a.textContent = txt; a.target = '_blank'; a.rel = 'noopener';
+  if (cls) a.className = cls;
+  return a;
+}
+
+function renderCard(bp, rank, isTaobao) {
+  var pct = Math.round((bp.score / 13) * 100);
+  var tier = pct >= 65 ? '' : pct >= 50 ? ' mid' : ' low';
+  var isTop = bp.badge === 'top';
+  var isValue = bp.badge === 'value';
+  var isBudget = bp.badge === 'budget';
+
+  var card = el('div', 'card' + (isTop ? ' top-pick' : ''));
+  var header = el('div', 'card-header');
+  header.addEventListener('click', function() { card.classList.toggle('open'); });
+
+  header.appendChild(el('div', 'rank', String(rank)));
+
+  var info = el('div', 'card-info');
+  var nameEl = el('div', 'card-name', bp.name);
+  if (isTop) { var b = el('span', 'top-badge', isTaobao ? 'TOP TAOBAO' : 'TOP PICK'); nameEl.appendChild(b); }
+  else if (isValue) { nameEl.appendChild(el('span', 'value-badge', 'BEST VALUE')); }
+  else if (isBudget) { var b = el('span', 'value-badge', 'BEST BUDGET'); b.style.background = '#8b5cf6'; nameEl.appendChild(b); }
+  info.appendChild(nameEl);
+
+  var meta = el('div', 'card-meta');
+  meta.appendChild(el('span', '', '$' + bp.price));
+  meta.appendChild(el('span', '', bp.volume));
+  meta.appendChild(el('span', '', bp.weight));
+  info.appendChild(meta);
+
+  var barWrap = el('div', 'score-bar-wrap');
+  var bar = el('div', 'score-bar' + tier);
+  bar.style.width = pct + '%';
+  barWrap.appendChild(bar);
+  info.appendChild(barWrap);
+  header.appendChild(info);
+  header.appendChild(el('div', 'score-badge' + tier, bp.score + '/13'));
+  header.appendChild(el('div', 'expand-icon', '\u25BC'));
+  card.appendChild(header);
+
+  var body = el('div', 'card-body');
+
+  if (isTaobao && bp.taobaoEst) {
+    var pc = el('div', 'price-compare');
+    pc.appendChild(el('span', '', 'Amazon ~$' + bp.price));
+    pc.appendChild(el('span', '', '\u2192'));
+    pc.appendChild(el('span', 'price-taobao', 'Taobao est. ' + bp.taobaoEst));
+    body.appendChild(pc);
+  }
+  if (!isTaobao && bp.taobaoEst) {
+    var pc = el('div', 'price-compare');
+    pc.appendChild(el('span', '', 'Official $' + bp.price));
+    pc.appendChild(el('span', '', '\u2192'));
+    pc.appendChild(el('span', 'price-taobao', 'Taobao est. ' + bp.taobaoEst));
+    body.appendChild(pc);
+  }
+
+  var hl = el('div', 'highlights');
+  bp.highlights.forEach(function(h) { hl.appendChild(el('span', 'highlight', h)); });
+  body.appendChild(hl);
+
+  var ml = el('div', 'material-line');
+  ml.appendChild(el('strong', '', 'Material: '));
+  ml.appendChild(document.createTextNode(bp.material));
+  body.appendChild(ml);
+
+  if (isTaobao && bp.taobaoKeywords) {
+    var kl = el('div', 'material-line');
+    kl.style.marginTop = '0.25rem';
+    kl.appendChild(el('strong', '', 'Taobao search: '));
+    kl.appendChild(document.createTextNode(bp.taobaoKeywords));
+    body.appendChild(kl);
+  }
+
+  var list = el('ul', 'checklist');
+  bp.criteria.forEach(function(c) {
+    var li = el('li');
+    li.appendChild(el('span', 'check-icon ' + (c[0] ? 'pass' : 'fail'), c[0] ? '\u2713' : '\u2717'));
+    li.appendChild(el('span', '', c[1]));
+    list.appendChild(li);
+  });
+  body.appendChild(list);
+
+  var row = el('div', 'btn-row');
+  row.appendChild(mkLink(bp.link, 'View Product \u2197', isTaobao ? 'btn btn-taobao' : 'btn btn-primary'));
+  if (bp.altLink) row.appendChild(mkLink(bp.altLink, bp.altLabel + ' \u2197', 'btn btn-secondary'));
+  body.appendChild(row);
+
+  card.appendChild(body);
+  return card;
+}
+
+function renderCards(packs, containerId, isTaobao) {
+  var c = document.getElementById(containerId);
+  c.textContent = '';
+  packs.forEach(function(bp, i) {
+    c.appendChild(renderCard(bp, i + 1, isTaobao));
+  });
+}
+
+function renderAll() {
+  var all = internationalPacks.concat(taobaoPacks);
+  all.sort(function(a, b) { return b.score - a.score || a.price - b.price; });
+  var c = document.getElementById('all-cards');
+  c.textContent = '';
+  all.forEach(function(bp, i) {
+    var isTB = taobaoPacks.indexOf(bp) >= 0;
+    c.appendChild(renderCard(bp, i + 1, isTB));
+  });
+}
+
+renderCards(internationalPacks, 'international-cards', false);
+renderCards(taobaoPacks, 'taobao-cards', true);
+renderAll();
+
+// Taobao search tips table
+var tipsBody = document.getElementById('tips-body');
+taobaoPacks.forEach(function(bp) {
+  if (bp.taobaoKeywords) {
+    var tr = document.createElement('tr');
+    var td1 = document.createElement('td');
+    td1.textContent = bp.name;
+    var td2 = document.createElement('td');
+    td2.textContent = bp.taobaoKeywords;
+    tr.appendChild(td1);
+    tr.appendChild(td2);
+    tipsBody.appendChild(tr);
+  }
+});
+
+function showSection(which) {
+  var tabs = document.querySelectorAll('.tab');
+  tabs.forEach(function(t) { t.classList.remove('active'); });
+
+  var intl = document.getElementById('international-section');
+  var tb = document.getElementById('taobao-section');
+  var allS = document.getElementById('all-section');
+
+  intl.classList.add('section-hidden');
+  tb.classList.add('section-hidden');
+  allS.classList.add('section-hidden');
+
+  if (which === 'international') {
+    intl.classList.remove('section-hidden');
+    tabs[0].classList.add('active');
+  } else if (which === 'taobao') {
+    tb.classList.remove('section-hidden');
+    tabs[1].classList.add('active');
+  } else {
+    allS.classList.remove('section-hidden');
+    tabs[2].classList.add('active');
+  }
+}
+</script>
+
+</body>
+</html>
